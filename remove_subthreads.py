@@ -1,8 +1,9 @@
+import argparse
 import os
 import re
-import argparse
 from email import policy
 from email.parser import BytesParser
+import PyPDF2
 
 eml_txt = {} # dict of filename:message text
 
@@ -15,12 +16,27 @@ if not os.path.exists(args.dir):
 
 for file in os.listdir(args.dir):
     if file.endswith(".eml"): #only testing eml files now
-        m = open(os.path.join(args.dir, file), 'rb')
-        msg = BytesParser(policy = policy.default).parse(m)
-        txt = msg.get_body(preferencelist= 'plain').get_content()
-        txt = re.sub("[^a-zA-z0-9]|\\n", "", txt)
-        eml_txt[file] = txt
-        m.close()
+        with open(os.path.join(args.dir, file), 'rb') as m:
+            msg = BytesParser(policy = policy.default).parse(m)
+            txt = msg.get_body(preferencelist= 'plain').get_content()
+            txt = re.sub("[^a-zA-z0-9]|\\n", "", txt)
+            eml_txt[file] = txt
+    elif file.endswith(".pdf"):
+        with open(os.path.join(args.dir, file), mode = "rb") as m:
+            reader = PyPDF2.PdfFileReader(m)
+            n_pg = reader.getNumPages()
+            for page in range(n_pg):
+                msg = reader.getPage(page)
+                txt = msg.extractText()
+                if not isinstance(txt, str):
+                    continue
+                else:
+                    txt = re.sub("[^a-zA-z0-9]|\\n", "", txt)
+                    if n_pg > 1:
+                        filename = os.path.splitext(file)[0] + "_pg" + str(page+1) + ".pdf"
+                        eml_txt[filename] = txt
+                    else:
+                        eml_txt[file] = txt
 
 fn_rm = [] # create list of filenames to be removed
 for key in eml_txt:
@@ -36,14 +52,12 @@ for key in eml_txt:
 # Check for and save attachment(s) before deleting
 for file in os.listdir(args.dir):
     if file in fn_rm:
-        f = open(os.path.join(args.dir, file), 'rb')
-        f_msg = BytesParser(policy=policy.default).parse(f)
+        with open(os.path.join(args.dir, file), 'rb') as f:
+            f_msg = BytesParser(policy=policy.default).parse(f)
         for part in f_msg.iter_parts():
             if part.is_attachment():
                 att_fname = os.path.join(args.dir, (os.path.splitext(file)[0] + "_" + part.get_filename()))
                 content = part.get_content()
                 with open(att_fname, 'wb') as w:
                     w.write(content)
-                    w.close()
-        f.close()
         os.remove(os.path.join(args.dir, file))
