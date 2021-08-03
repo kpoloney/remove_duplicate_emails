@@ -25,7 +25,7 @@ for file in os.listdir(args.dir):
         with open(os.path.join(args.dir, file), mode = "rb") as m:
             reader = PyPDF2.PdfFileReader(m)
             n_pg = reader.getNumPages()
-            for page in range(n_pg):
+            for page in range(n_pg+1):
                 msg = reader.getPage(page)
                 txt = msg.extractText()
                 if not isinstance(txt, str):
