@@ -15,7 +15,7 @@ if not os.path.exists(args.dir):
     print("Directory not found")
 
 for file in os.listdir(args.dir):
-    if file.endswith(".eml"): #only testing eml files now
+    if file.endswith(".eml"):
         with open(os.path.join(args.dir, file), 'rb') as m:
             msg = BytesParser(policy = policy.default).parse(m)
             txt = msg.get_body(preferencelist= 'plain').get_content()
@@ -25,7 +25,7 @@ for file in os.listdir(args.dir):
         with open(os.path.join(args.dir, file), mode = "rb") as m:
             reader = PyPDF2.PdfFileReader(m)
             n_pg = reader.getNumPages()
-            for page in range(n_pg+1):
+            for page in range(n_pg):
                 msg = reader.getPage(page)
                 txt = msg.extractText()
                 if not isinstance(txt, str):
@@ -48,16 +48,19 @@ for key in eml_txt:
             else: fn_rm.append(key)
         else: continue
 
-# Remove eml files whose entire text can be found in another email file
+# Remove files whose entire text can be found in another email file
 # Check for and save attachment(s) before deleting
 for file in os.listdir(args.dir):
     if file in fn_rm:
-        with open(os.path.join(args.dir, file), 'rb') as f:
-            f_msg = BytesParser(policy=policy.default).parse(f)
-        for part in f_msg.iter_parts():
-            if part.is_attachment():
-                att_fname = os.path.join(args.dir, (os.path.splitext(file)[0] + "_" + part.get_filename()))
-                content = part.get_content()
-                with open(att_fname, 'wb') as w:
-                    w.write(content)
-        os.remove(os.path.join(args.dir, file))
+        if file.endswith(".pdf"):
+            os.remove(os.path.join(args.dir, file))
+        else:
+            with open(os.path.join(args.dir, file), 'rb') as f:
+                f_msg = BytesParser(policy=policy.default).parse(f)
+            for part in f_msg.iter_parts():
+                if part.is_attachment():
+                    att_fname = os.path.join(args.dir, (os.path.splitext(file)[0] + "_" + part.get_filename()))
+                    content = part.get_content()
+                    with open(att_fname, 'wb') as w:
+                        w.write(content)
+            os.remove(os.path.join(args.dir, file))
