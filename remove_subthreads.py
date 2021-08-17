@@ -65,6 +65,6 @@ for file in os.listdir(args.dir):
                         with open(att_fname, 'wb') as w:
                             w.write(content)
                     else:
-                        with open(att_fname, 'w') as w:
+                        with open(att_fname, 'w', encoding='utf-8') as w:
                             w.write(content)
             os.remove(os.path.join(args.dir, file))
