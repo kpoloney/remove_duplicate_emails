@@ -61,7 +61,7 @@ for file in os.listdir(args.dir):
                 if part.is_attachment():
                     att_fname = os.path.join(args.dir, (os.path.splitext(file)[0] + "_" + part.get_filename()))
                     content = part.get_content()
-                    if not part.get_content_type()=='text/plain':
+                    if not part.get_content_type().startswith("text"):
                         with open(att_fname, 'wb') as w:
                             w.write(content)
                     else:
