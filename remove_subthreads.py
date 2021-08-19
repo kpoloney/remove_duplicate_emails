@@ -59,7 +59,10 @@ for file in os.listdir(args.dir):
                 f_msg = BytesParser(policy=policy.default).parse(f)
             for part in f_msg.iter_parts():
                 if part.is_attachment():
-                    att_fname = os.path.join(args.dir, (os.path.splitext(file)[0] + "_" + part.get_filename()))
+                    newfolder = os.path.join(args.dir, "Attachments")
+                    if not os.path.exists(newfolder):
+                        os.makedirs(newfolder)
+                    att_fname = os.path.join(newfolder, (os.path.splitext(file)[0] + "_" + part.get_filename()))
                     content = part.get_content()
                     if not part.get_content_type().startswith("text"):
                         with open(att_fname, 'wb') as w:
