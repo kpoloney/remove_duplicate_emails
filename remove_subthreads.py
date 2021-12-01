@@ -76,12 +76,17 @@ for file in os.listdir(args.dir):
                 newfolder = os.path.join(args.dir, "Attachments")
                 if not os.path.exists(newfolder):
                     os.makedirs(newfolder)
-                att_fname = os.path.join(newfolder, (os.path.splitext(file)[0] + "_" + part.get_filename()))
+                afn = re.sub("[^a-zA-z0-9]|_|\\n", "", part.get_filename())
+                att_fname = os.path.join(newfolder, (os.path.splitext(file)[0] + "_" + afn))
                 content = part.get_content()
-                if not part.get_content_type().startswith("text"):
-                    with open(att_fname, 'wb') as w:
-                        w.write(content)
-                else:
+                if part.get_content_type().startswith("text"):
                     with open(att_fname, 'w', encoding='utf-8') as w:
+                        w.write(content)
+                elif part.get_content_type.startswith("message"):
+                    em_att = content.as_bytes()
+                    with open(att_fname+".eml", 'wb') as w:
+                        w.write(em_att)
+                else:
+                    with open(att_fname, 'wb') as w:
                         w.write(content)
         os.remove(os.path.join(args.dir, file))
