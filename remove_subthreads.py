@@ -82,7 +82,7 @@ for file in os.listdir(args.dir):
                 if part.get_content_type().startswith("text"):
                     with open(att_fname, 'w', encoding='utf-8') as w:
                         w.write(content)
-                elif part.get_content_type.startswith("message"):
+                elif part.get_content_type().startswith("message"):
                     em_att = content.as_bytes()
                     with open(att_fname+".eml", 'wb') as w:
                         w.write(em_att)
