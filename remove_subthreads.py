@@ -58,8 +58,8 @@ for key in eml_txt:
                     if person not in comp_names:
                         continue  # If there is a new name, keep the email
                     else:  # compare subject
-                        subj = re.sub("^RE:\\s|^FW:\\s", "", headers['Subject'], flags=re.IGNORECASE)
-                        comp_subj = re.sub("^RE:\\s|^FW:\\s", "", comp_head['Subject'], flags=re.IGNORECASE)
+                        subj = re.sub("^RE:\\s|^FW:\\s", "", str(headers['Subject']), flags=re.IGNORECASE)
+                        comp_subj = re.sub("^RE:\\s|^FW:\\s", "", str(comp_head['Subject']), flags=re.IGNORECASE)
                         if subj != comp_subj:
                             continue
                         elif key not in fn_rm:  # Only delete if no new persons and no new subject
