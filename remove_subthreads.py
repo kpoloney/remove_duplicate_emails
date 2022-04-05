@@ -18,9 +18,12 @@ for file in os.listdir(args.dir):
     if file.endswith(".eml"):
         with open(os.path.join(args.dir, file), 'rb') as m:
             msg = BytesParser(policy=policy.default).parse(m)
-            txt = msg.get_body(preferencelist='plain').get_content()
-            txt = re.sub("[^a-zA-z0-9]|_|\\n", "", txt)
-            eml_txt[file] = txt
+            if msg.get_body(preferencelist='plain') is not None:
+                txt = msg.get_body(preferencelist='plain').get_content()
+                txt = re.sub("[^a-zA-z0-9]|_|\\n", "", txt)
+                eml_txt[file] = txt
+            else:
+                print("Could not extract message text: " + file)
 
 fn_rm = []  # create list of filenames to be removed
 for key in eml_txt:
